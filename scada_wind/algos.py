@@ -25,13 +25,14 @@ def wind_site_selector(columns, site):
     wind_farms = {"West Wind": ["WWD"],
                  "Tararua": ["TWF"],
                  "All Tararua": ["TWF", "TAP", "TWC"],
+                 "Te Apiti": ["TAP"],
                  "White Hill": ["WHL"],
                  "Te Uku": ["TUK"],
                  "All": ["GENERATION"],
                  "North Island": ["TWF", "TAP", "TWC", "WWD", "TRH", "TUK"],
                  "South Island": ["WHL", "MAH"]}
 
-    return [x for x in columns if any(y in x for y in wind_farms[site])]
+    return [x for x in columns if any([y in x for y in wind_farms[site]])]
 
 def aggregate_farms(df, cols):
     return df[cols].sum(axis=1)
@@ -43,9 +44,8 @@ def five_min_delta(series):
     cutter = lambda x: x[-1] - x[0]
     return pd.rolling_apply(series, 2, func=cutter)
 
-def five_min_cutoff(series, rel_cutoff=0.4):
-    cutoff = rel_cutoff * series.max() * -1
-    cutoff_points = series[series <= cutoff
+def five_min_cutoff(series, cutoff_point=0.4):
+    cutoff_points = series[series <= -cutoff_point]
     cutoff_points.sort()
     return cutoff_points
 
@@ -62,7 +62,8 @@ def all_slicer(series, stamps):
 def process_series(series):
     five_minute = five_min_resample(series)
     deviation = five_min_delta(series)
-    cutoff = five_min_cutoff(deviation)
+    cutoff_point = series.max() * 0.3
+    cutoff = five_min_cutoff(deviation, cutoff_point)
     stamps = cutoff.index
     return all_slicer(series, stamps)
 
@@ -80,7 +81,7 @@ def create_farm_directory(dir, farm):
         os.mkdir(new_name)
     return new_name
 
-def process_save(df, farm, farm_dir):
+def process_save(df, farm_dir, farm):
 
     try:
         wind_series = aggregate_farms(df, wind_site_selector(df.columns, farm))
@@ -92,7 +93,7 @@ def process_save(df, farm, farm_dir):
             savename = os.path.join(farm_dir, opt)
             possible.name = "Scada Output"
             possible.index.name = "Timestmap"
-            possible.to_csv(savename, index=True, header=True)
+        possible.to_csv(savename, index=True, header=True)
     except:
         print "There was an Error processing", farm
 
@@ -120,6 +121,7 @@ def run_directory(directory):
             print f, "Complete"
         except:
             print f, "Unable to complete, investiate further"
+
 
 
 
