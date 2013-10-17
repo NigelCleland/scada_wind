@@ -61,8 +61,8 @@ def all_slicer(series, stamps):
 
 def process_series(series):
     five_minute = five_min_resample(series)
-    deviation = five_min_delta(series)
-    cutoff_point = series.max() * 0.3
+    deviation = five_min_delta(five_minute)
+    cutoff_point = series.max() * 0.2
     cutoff = five_min_cutoff(deviation, cutoff_point)
     stamps = cutoff.index
     return all_slicer(series, stamps)
