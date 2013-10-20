@@ -27,14 +27,16 @@ def wind_site_selector(columns, site):
                  "All Tararua": ["TWF", "TAP", "TWC"],
                  "Te Apiti": ["TAP"],
                  "White Hill": ["WHL"],
+                 "Mahinerangi": ["MAH"],
                  "Te Uku": ["TUK"],
-                 "All": ["GENERATION"],
+                 "All": ["GENERAT"],
                  "North Island": ["TWF", "TAP", "TWC", "WWD", "TRH", "TUK"],
                  "South Island": ["WHL", "MAH"]}
 
     return [x for x in columns if any([y in x for y in wind_farms[site]])]
 
-def aggregate_farms(df, cols):
+def aggregate_farms(df, farm):
+    cols = wind_site_selector(df.columns, farm)
     return df[cols].sum(axis=1)
 
 def five_min_resample(series):
@@ -62,9 +64,8 @@ def all_slicer(series, stamps):
 def process_series(series):
     five_minute = five_min_resample(series)
     deviation = five_min_delta(five_minute)
-    cutoff_point = series.max() * 0.2
-    cutoff = five_min_cutoff(deviation, cutoff_point)
-    stamps = cutoff.index
+    deviation.sort()
+    stamps = deviation.head().index
     return all_slicer(series, stamps)
 
 def create_directory(filename):
@@ -81,10 +82,28 @@ def create_farm_directory(dir, farm):
         os.mkdir(new_name)
     return new_name
 
+def threshold_values(farm):
+    """ Define a minimum threshold value for each wind farm to be passed
+    to the cutoff values instead of choosing it relatively
+    """
+
+    thresholds = {"West Wind": 20,
+                  "Tararua": 20,
+                  "All Tararua": 30,
+                  "Te Apiti": 20,
+                  "White Hill": 20,
+                  "Mahinerangi": 20,
+                  "Te Uku": 30,
+                  "All": 40,
+                  "North Island": 40,
+                  "South Island": 17}
+
+    return thresholds[farm]
+
 def process_save(df, farm_dir, farm):
 
     try:
-        wind_series = aggregate_farms(df, wind_site_selector(df.columns, farm))
+        wind_series = aggregate_farms(df, farm)
         sliced_series = process_series(wind_series)
 
         for i, possible in enumerate(sliced_series):
@@ -93,7 +112,7 @@ def process_save(df, farm_dir, farm):
             savename = os.path.join(farm_dir, opt)
             possible.name = "Scada Output"
             possible.index.name = "Timestmap"
-        possible.to_csv(savename, index=True, header=True)
+            possible.to_csv(savename, index=True, header=True)
     except:
         print "There was an Error processing", farm
 
@@ -104,7 +123,7 @@ def process_month(filename):
     directory = create_directory(filename)
 
     wind_farms = ("West Wind", "Tararua", "Te Apiti", "All Tararua",
-                  "White Hill", "Te Uku", "All", "North Island",
+                  "White Hill", "Mahinerangi", "Te Uku", "All", "North Island",
                   "South Island")
 
     for farm in wind_farms:
