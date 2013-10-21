@@ -89,6 +89,7 @@ def farm_capacity(farm):
                   "Tararua": 66,
                   "All Tararua": 250,
                   "Te Apiti": 92,
+                  "Tararua WC": 90,
                   "White Hill": 57,
                   "Mahinerangi": 36,
                   "Te Uku": 64,

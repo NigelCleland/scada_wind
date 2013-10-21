@@ -41,8 +41,8 @@ def stream_plot(df):
 def process_and_plot(directory, column="Cumulative Deviation"):
 
     wind_farms = ("West Wind", "Tararua", "Te Apiti", "All Tararua",
-                  "White Hill", "Mahinerangi", "Te Uku", "All", "North Island",
-                  "South Island")
+                  "Tararua WC", "White Hill", "Mahinerangi", "Te Uku",
+                  "All", "North Island", "South Island")
 
     for farm in wind_farms:
 

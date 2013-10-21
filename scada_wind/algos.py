@@ -26,6 +26,7 @@ def wind_site_selector(columns, site):
                  "Tararua": ["TWF"],
                  "All Tararua": ["TWF", "TAP", "TWC"],
                  "Te Apiti": ["TAP"],
+                 "Tararua WC": ["TWC"],
                  "White Hill": ["WHL"],
                  "Mahinerangi": ["MAH"],
                  "Te Uku": ["TUK"],
@@ -91,6 +92,7 @@ def threshold_values(farm):
                   "Tararua": 20,
                   "All Tararua": 30,
                   "Te Apiti": 20,
+                  "Tararua WC": 20,
                   "White Hill": 20,
                   "Mahinerangi": 20,
                   "Te Uku": 30,
@@ -123,8 +125,8 @@ def process_month(filename):
     directory = create_directory(filename)
 
     wind_farms = ("West Wind", "Tararua", "Te Apiti", "All Tararua",
-                  "White Hill", "Mahinerangi", "Te Uku", "All", "North Island",
-                  "South Island")
+                  "Tararua WC", "White Hill", "Mahinerangi", "Te Uku",
+                  "All", "North Island", "South Island")
 
     for farm in wind_farms:
         farm_dir = create_farm_directory(directory, farm)
